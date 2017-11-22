@@ -1,0 +1,209 @@
+create schema bd2;
+use bd2;
+
+/* TABELAS*/
+ 
+CREATE TABLE email (
+  id_email int(11) NOT NULL AUTO_INCREMENT,
+  id_destinatario varchar(45) NOT NULL,
+  id_remetente varchar(45) NOT NULL,
+  id_favorito enum('S','N') DEFAULT NULL,
+  assunto varchar(45) NOT NULL,
+  texto text,
+  anexos blob,
+  data_email timestamp DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id_email),
+  INDEX (id_destinatario)
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE entrada (
+  id_entrada int(11) NOT NULL AUTO_INCREMENT,
+  lido enum('S','N') DEFAULT 'N',
+  id_email int(11) DEFAULT NULL,
+  id_remetente varchar(45) NOT NULL,
+  id_data_email timestamp DEFAULT CURRENT_TIMESTAMP,
+  id_assunto varchar(40) NOT NULL,
+  fk_email_entrada int(11) DEFAULT NULL,
+  INDEX (id_assunto),
+  PRIMARY KEY (id_entrada),
+  KEY fk_email_entrada_idx (fk_email_entrada),
+  CONSTRAINT fk_email_entrada FOREIGN KEY (fk_email_entrada) REFERENCES email (id_email) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE enviar_email (
+  id_enviar_email int(11) NOT NULL AUTO_INCREMENT,
+  destinatario_email varchar(45) NOT NULL,
+  remetente_email varchar(45) NOT NULL,
+  assunto_email varchar(50) NOT NULL,
+  texto_email text,
+  anexo_email blob,
+  data_envio timestamp DEFAULT CURRENT_TIMESTAMP,
+  fk_enviar_email int(11) DEFAULT NULL,
+  INDEX( assunto_email),
+  PRIMARY KEY (id_enviar_email),
+  KEY fk_enviar_email_idx (fk_enviar_email),
+  CONSTRAINT fk_enviar_email FOREIGN KEY (fk_enviar_email) REFERENCES email (id_email) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8;
+
+CREATE TABLE enviados (
+  id_enviado int(11) NOT NULL,
+  id_destinatario varchar(45) NOT NULL,
+  data_enviado timestamp DEFAULT CURRENT_TIMESTAMP,
+  texto text,
+  assunto varchar(50) NOT NULL,
+  fk_email_enviado int(11) DEFAULT NULL,
+  INDEX (assunto),
+  PRIMARY KEY (id_enviado),
+  KEY fk_email_enviado_idx (fk_email_enviado),
+  CONSTRAINT fk_email_enviado FOREIGN KEY (fk_email_enviado) REFERENCES enviar_email (id_enviar_email) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+
+CREATE TABLE rascunho (
+    id_rascunho INT(11) NOT NULL AUTO_INCREMENT,
+    id_destinatario VARCHAR(45) NOT NULL,
+    data_rascunho TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    assunto VARCHAR(45) NOT NULL,
+    texto TEXT,
+    fk_enviar_rascunho int(11) DEFAULT NULL,
+    INDEX(assunto),
+    PRIMARY KEY (id_rascunho),
+   KEY fk_enviar_rascunho_idx (fk_enviar_rascunho),
+  CONSTRAINT fk_enviar_rascunho FOREIGN KEY (fk_enviar_rascunho) REFERENCES enviar_email (id_enviar_email) ON DELETE NO ACTION ON UPDATE NO ACTION
+)  ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8;
+
+CREATE TABLE lixeira (
+  id_lixeira int(11) NOT NULL,
+  data_delete  timestamp DEFAULT CURRENT_TIMESTAMP,
+  fk_entrada_lixeira int(11) DEFAULT NULL,
+  fk_enviados_lixeira int(11) DEFAULT NULL,
+  fk_rascunho_lixeira int(11) DEFAULT NULL,
+  INDEX (data_delete),
+  PRIMARY KEY (id_lixeira),
+   CONSTRAINT fk_entrada_lixeira FOREIGN KEY (fk_entrada_lixeira) REFERENCES entrada (id_entrada) ON DELETE NO ACTION ON UPDATE NO ACTION,
+   CONSTRAINT fk_enviados_lixeira FOREIGN KEY (fk_enviados_lixeira) REFERENCES enviados (id_enviado) ON DELETE NO ACTION ON UPDATE NO ACTION,
+   CONSTRAINT fk_rascunho_lixeira FOREIGN KEY (fk_rascunho_lixeira) REFERENCES rascunho (id_rascunho) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/* INSERTS */
+
+INSERT INTO email (id_email, id_destinatario, id_remetente, id_favorito, assunto, texto) VALUES ('12', 'marco123@gmail.com', 'braian21@gmail.com', 'S', 'Trabalho', 'trabalho pronto');
+INSERT INTO email (id_email, id_destinatario, id_remetente, id_favorito, assunto, texto) VALUES ('13', 'marco553@gmail.com', 'braian30@gmail.com', 'S', 'Dever de Casa', 'Prontinho');
+INSERT INTO email (id_email, id_destinatario, id_remetente, id_favorito, assunto, texto) VALUES ('15', 'rogerio22k@gmail.com', 'lucasf22@gmail.com', 'S', 'Trabalho', 'Ve ai');
+
+INSERT INTO entrada (id_entrada, id_email, id_remetente, id_assunto) VALUES ('13', '12', 'braian21@gmail.com', 'trabalho');
+INSERT INTO entrada (id_entrada, id_email, id_remetente, id_assunto) VALUES ('22', '20', 'braian30@gmail.com', 'Dever de Casa');
+INSERT INTO entrada (id_entrada, id_email, id_remetente, id_assunto) VALUES ('33', '31', 'lucasf22@gmail.com', 'trabalho');
+
+INSERT INTO enviados (id_enviado, id_destinatario, texto, assunto) VALUES ('13', 'marco123@gmail.com', 'Trabalho Pronto', 'Trabalho');
+INSERT INTO enviados (id_enviado, id_destinatario, texto, assunto) VALUES ('14', 'marco553@gmail.com', 'Prontinho', 'Dever de Casa');
+INSERT INTO enviados (id_enviado, id_destinatario, texto, assunto) VALUES ('15', 'rogerio22k@gmail.com', 'Ve ai', 'Trabalho');
+
+INSERT INTO enviar_email (id_enviar_email, destinatario_email, remetente_email, assunto_email, texto_email) VALUES ('15', 'braian21@gmail.com', 'marco123@gmail.com', 'Trabalho', 'Trabalho Pronto');
+INSERT INTO enviar_email (id_enviar_email, destinatario_email, remetente_email, assunto_email, texto_email) VALUES ('16', 'braian21@gmail.com', 'marco553@gmail.com', 'Dever de Casa', 'Prontinho');
+INSERT INTO enviar_email (id_enviar_email, destinatario_email, remetente_email, assunto_email, texto_email) VALUES ('17', 'lucasf22@gmail.com', 'rogerio22k@gmail.com', 'Trabalho', 'Ve ai');
+
+INSERT INTO lixeira (id_lixeira) VALUES ('22');
+INSERT INTO lixeira (id_lixeira) VALUES ('23');
+INSERT INTO lixeira (id_lixeira) VALUES ('24');
+
+INSERT INTO rascunho (id_rascunho, id_destinatario, assunto, texto) VALUES ('23', 'braian21@gmail.com', 'Trabalho', 'Trabalho Pronto');
+INSERT INTO rascunho (id_rascunho, id_destinatario, assunto, texto) VALUES ('24', 'braian21@gmail.com', 'Trabalho', 'Prontinho');
+INSERT INTO rascunho (id_rascunho , id_destinatario, assunto, texto) VALUES ('25', 'lucasf22@gmail.com', 'Trabalho', 'Ve ai');
+
+/* SELECTS*/
+
+SELECT AVG (email.id_email), (enviar_email.id_enviar_email) 
+FROM email 
+INNER JOIN enviar_email 
+ON email.id_email = enviar_email.id_enviar_email 
+GROUP BY email.id_email;
+
+SELECT email.id_destinatario, rascunho.id_destinatario
+FROM email 
+LEFT OUTER JOIN rascunho ON email.id_destinatario = rascunho.id_destinatario 
+ORDER BY email.id_destinatario;
+
+SELECT email.id_destinatario, enviados.id_destinatario
+FROM email 
+RIGHT OUTER JOIN enviados ON email.id_destinatario = enviados.id_destinatario
+HAVING COUNT(*) >2;
+
+/* UPDATES*/
+ 
+UPDATE rascunho SET id_destinatario = 'sirigueqq@gmail.com' WHERE id_rascunho = 23;
+UPDATE enviados SET texto = 'tudo ok' WHERE id_enviado = 13;
+UPDATE entrada SET id_remetente = 'preabsb@hotmail.com' WHERE id_entrada = 13;
+
+/* DELETES*/
+
+DELETE FROM lixeira WHERE id_lixeira='23';
+DELETE FROM email WHERE id_email='13';
+DELETE FROM entrada WHERE id_entrada='22';
+ 
+ /* VIEWS*/
+ 
+create view Enviar (id_email, id_enviar_email) as
+SELECT email.id_email, enviar_email.id_enviar_email
+FROM email 
+INNER JOIN enviar_email 
+ON email.id_email = enviar_email.id_enviar_email;
+
+
+create view Para (id_remetente, remetente_email) as
+SELECT email.id_remetente, enviar_email.remetente_email
+FROM email 
+INNER JOIN enviar_email
+ON email.id_remetente = enviar_email.remetente_email;
+
+create view qualassunto (id_assunto, assunto) as
+SELECT entrada.id_remetente, enviados.assunto
+FROM entrada 
+INNER JOIN enviados
+ON entrada.id_assunto = enviados.assunto;
+
+/* TRIGGERS*/
+
+DELIMITER $$
+CREATE TRIGGER Alterar_Email 
+AFTER INSERT ON email
+FOR EACH ROW 
+BEGIN  INSERT INTO EMAIL(id_email, id_destinatario, id_remetente, id_favorito, assunto, texto) VALUES ('18', 'rogeriopereira@gmail.com', 'rodrigojk@hotmail.com', 'N', 'Tarefa', 'Ate dia 17');
+END 
+$$ 
+DELIMITER ;
+
+DELIMITER $$
+CREATE TRIGGER Alterar_Enviar
+AFTER INSERT ON enviar_email
+FOR EACH ROW 
+BEGIN  INSERT INTO enviar_email (id_enviar_email, destinatario_email, remente_email, assunto_email, texto_email) VALUES ('33', 'fernandope@gmail.com', 'rodrigofernande@hotmail.com', 'Para Casa', 'Terminado');
+END 
+$$ 
+DELIMITER ;
+
+DELIMITER $$
+CREATE TRIGGER Alterar_Rascunho
+AFTER INSERT ON rascunho
+FOR EACH ROW 
+BEGIN  INSERT INTO rascunho (id_rascunho, id_destinatario, assunto, texto) VALUES ('55', 'danielbis@hotmail.com', 'Projeto', 'Conseguir Concluir');
+END 
+$$ 
+DELIMITER ;
+
+/* STORE PROCEDURES*/
+
+create procedure Ver_Email (varEmail smallint)
+Select concat(' O codigo email é',id_email) As Email
+From email
+where id_email = varEmail;
+
+create procedure Assunto (varEmail smallint)
+Select concat(' O titulo do email é',assunto) As Assunto
+From email
+where assunto = varEmail;
+
+create procedure Texto (textoEmail smallint)
+Select concat(' O conteudo do seu email é',texto) As Texto
+From rascunho
+where texto = TextoEmail;
